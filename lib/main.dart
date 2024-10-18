@@ -40,6 +40,12 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier {
   //state MyAppState diisi dengan 2 kata random yang digabung. Kata random tsb disimpan di variable WordPair
   var current = WordPair.random();
+
+  //membuat fungsi getNext untuk mengacak kata
+  void getNext() {
+    current = WordPair.random(); //acak kata
+    notifyListeners(); //kirim kata yg diacak ke listener untuk ditampilkan di layar
+  }
 }
 
 //membuat layout pada halaman HomePage
@@ -61,9 +67,8 @@ class MyHomePage extends StatelessWidget {
           ElevatedButton(
             //membuat button timbul di dalam body
             onPressed: () {
-              //fungsi yg dieksekusi ketika button ditekan
-              print(
-                  'button pressed!'); //tampilkan teks 'button pressed' di terminal saat button ditekan
+              //fungsi getNext() dieksekusi ketika button ditekan
+              appState.getNext();
             },
             child:
                 Text('Next'), //berikan teks 'Next' pada button (sebagai child)
