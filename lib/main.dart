@@ -46,6 +46,19 @@ class MyAppState extends ChangeNotifier {
     current = WordPair.random(); //acak kata
     notifyListeners(); //kirim kata yg diacak ke listener untuk ditampilkan di layar
   }
+
+  //membuat variabel bertipe "list"/daftar bernama favorites untuk menyimpan daftar kata yang di-like
+  var favorites = <WordPair>[];
+
+  //fungsi untuk menambahkan kata ke dalam, atau menghapus kata dari list favorite
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current); //menghapus kata dari list favorite
+    } else {
+      favorites.add(current); //menambah kata ke list favorite
+    }
+    notifyListeners(); //menempelkan fungsi ini ke button like supaya button like bisa mengetahui jika dirinya sedang ditekan
+  }
 }
 
 //membuat layout pada halaman HomePage
@@ -57,6 +70,13 @@ class MyHomePage extends StatelessWidget {
     //di bawah ini adalah kode program untuk menyusun layout
     var pair = appState
         .current; //variabel pair menyimpan kata yang sedang tampil/aktif, yang diambil dari appState.current
+
+    IconData icon;
+    if (appState.favorites.contains(pair)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border;
+    }
 
     return Scaffold(
       //base (canvas) dari layout
@@ -70,14 +90,29 @@ class MyHomePage extends StatelessWidget {
             BigCard(
                 pair:
                     pair), //mengambil nilai dari variabel pair, lalu diubah menjadi huruf kecil semua, dan ditampilkan sebagai BigCard / kartu besar
-            ElevatedButton(
-              //membuat button timbul di dalam body
-              onPressed: () {
-                //fungsi getNext() dieksekusi ketika button ditekan
-                appState.getNext();
-              },
-              child:
-                  Text('Next'), //berikan teks 'Next' pada button (sebagai child)
+            Row(
+              //mengubah layout button menjadi row/baris
+              mainAxisSize: MainAxisSize
+                  .min, //memposisikan button supaya berada di tengah
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    appState.toggleFavorite();
+                  },
+                  icon: Icon(icon),
+                  label: Text('Like'),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  //membuat button timbul di dalam body
+                  onPressed: () {
+                    //fungsi getNext() dieksekusi ketika button ditekan
+                    appState.getNext();
+                  },
+                  child: Text(
+                      'Next'), //berikan teks 'Next' pada button (sebagai child)
+                ),
+              ],
             ),
           ],
         ),
@@ -87,7 +122,7 @@ class MyHomePage extends StatelessWidget {
 }
 
 class BigCard extends StatelessWidget {
-  //widget BigCard
+  //widget BigCard, untuk membuat tampilan kartu pada teks
   const BigCard({
     super.key,
     required this.pair,
@@ -98,21 +133,26 @@ class BigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context); //menambahkan tema pada card
+    //membuat style untuk text, diberi nama style. Style warna mengikuti parrent
     final style = theme.textTheme.displayMedium!.copyWith(
       color: theme.colorScheme.onPrimary,
     );
 
     return Card(
       //membungkus padding di dalam widget Card
-      color: theme.colorScheme.primary, //menambahkan warna pada card
+      color: theme.colorScheme
+          .primary, //menambahkan warna pada card, mengikuti skema/tema warna induknya (column)
       child: Padding(
         padding:
             const EdgeInsets.all(20), //memberi jarak/padding di sekitar teks
         child: Text(
+          //mengubah kata dalam pair menjadi huruf kecil
           pair.asLowerCase,
-          style: style,
+          style:
+              style, //menerapkan style dgn nama style yg sudah dibuat, ke dalam Text
+          //memberi label pada masing-masing kata, supaya text terbaca dengan benar oleh aplikasi
           semanticsLabel: "${pair.first} ${pair.second}",
-        ), //membuat kata menjadi huruf kecil
+        ),
       ),
     );
   }
